@@ -30,14 +30,14 @@ def get_words(html):
     return [word.lower() for word in words if word!='']
 
 
-elixir_feeds = ["https://medium.com/feed/@minatsilvester", "https://medium.com/feed/@stueccles"]
+
 apcount = {}
 wordscount = {}
-
+wc = {}
 #format of api
 #called with a keyword(required) and a list of user read feed.
 #pass an empty list if no user read feed is available
-def get_blogs(keyword, user_read_urls):
+def get_blogs(keyword, user_read_urls, feed_urls):
     #check if the inputs are in required formats
     if type(user_read_urls) is list and type(keyword) is str:
         feed_urls = []
@@ -45,14 +45,34 @@ def get_blogs(keyword, user_read_urls):
         variables = globals()
         variable = 0
         #match the feed_url with the required_feed_urls by comparing
-        for variable in variables:
-                if keyword in variable:
-                    print(variable)
-                    feed_urls = variables[variable]
+        # for variable in variables:
+        #         if keyword in variable:
+        #             print(variable)
+        #             feed_urls = variables[variable]
 
         if user_read_urls != []:
             for user_read_url in user_read_urls:
-                feed_urls.append(user_read_url)
+                split_user_read_url = user_read_url.split("/")
+                for split_part in split_user_read_url:
+                    if ".com" in split_part:
+                        blog_domain = split_part
+                for split_part in split_user_read_url:
+                    if "@" in split_part:
+                        user_name = split_part
+                required_feed_url = "https://" + domain + "/feed/" + user_name
+                d = feedparser.parse(required_feed_url)
+                for e in d['items']:
+                        if keyword in e.title:
+                            required_content_for_splitting = e.title + e.content[0].value
+                            words = get_words(required_content_for_splitting)
+                            for word in words:
+                                wc.setdefault(word, 0)
+                                wc[word] += 1
+                wordscount["user_read_blogs"] = wc
+                for word, count in wc.items():
+                    apcount.setdefault(word, 0)
+                    if count > 1:
+                        apcount[word] += 1
 
         for feedurl in feed_urls:
             individual_words, titles = getwordcount(feedurl)
@@ -72,12 +92,12 @@ def get_blogs(keyword, user_read_urls):
 
 
 
-        print(wordlist)
+        print(wordscount)
 
         out = open('blogdata.txt', 'w')
         out.write('Blog')
         for word in wordlist: out.write("\t%s" % word)
-        out.write("\n") 
+        out.write("\n")
         for blog, wc in wordscount.items():
             out.write(blog)
             for word in wordlist:

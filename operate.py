@@ -23,21 +23,25 @@ def readfile(filename):
 
 def input_fn():
   return tf.compat.v1.train.limit_epochs(
-      tf.convert_to_tensor(data, dtype=tf.float32), num_epochs=1)
+      tf.convert_to_tensor(dataset), num_epochs=1)
 
-get_blogs("elixir", [])
-num_clusters = 6
+elixir_feeds = ["https://medium.com/feed/@minatsilvester", "https://medium.com/feed/@qertoip",
+"https://medium.com/feed/@stueccles", "https://medium.com/feed/@anton.mishchuk"]
+
+get_blogs("elixir", [], elixir_feeds)
+num_clusters = 5
 kmeans = tf.compat.v1.estimator.experimental.KMeans(num_clusters = num_clusters, use_mini_batch = False)
 
 num_iterations = 10
 previous_centers = None
 row_names, col_names, data = readfile('blogdata.txt')
-# raw_dataset = tf.data.TFRecordDataset('blogdata.txt')
-# print(data)
 
-dataset = tf.data.Dataset.from_tensor_slices(data)
-# for x in dataset:
-#     print(x)
+for i in data:
+    print(len(i))
+# raw_dataset = tf.data.TFRecordDataset('blogdata.txt')
+# dataset = tf.convert_to_tensor(data)
+# print(dataset)
+dataset = data[:len(data)-3]
 print(dataset)
 print(input_fn())
 for _ in range(num_iterations):
@@ -50,11 +54,8 @@ for _ in range(num_iterations):
 print('cluster centers:', cluster_centers)
 
 cluster_indices = list(kmeans.predict_cluster_index(input_fn))
-# print(cluster_indices)
-# for i, d in enumerate(data):
-#   cluster_index = cluster_indices[i]
-#   center = cluster_centers[cluster_index]
-#   print('point:', col_names[i], 'is in cluster', cluster_index, 'centered at', center)
+
+
 clusters = []
 individual_clusters = []
 print(cluster_indices)
