@@ -34,16 +34,21 @@ def get_words(html):
 apcount = {}
 wordscount = {}
 wc = {}
+titles = []
+data = []
+individual_blog_word_count = []
+# elixir_feeds = ["https://medium.com/feed/@minatsilvester", "https://medium.com/feed/@qertoip",
+# "https://medium.com/feed/@stueccles", "https://medium.com/feed/@anton.mishchuk"]
 #format of api
 #called with a keyword(required) and a list of user read feed.
 #pass an empty list if no user read feed is available
 def get_blogs(keyword, user_read_urls, feed_urls):
     #check if the inputs are in required formats
+    print(type(user_read_urls))
     if type(user_read_urls) is list and type(keyword) is str:
-        feed_urls = []
         #get the names of all declared variable
-        variables = globals()
-        variable = 0
+        # variables = globals()
+        # variable = 0
         #match the feed_url with the required_feed_urls by comparing
         # for variable in variables:
         #         if keyword in variable:
@@ -91,19 +96,31 @@ def get_blogs(keyword, user_read_urls, feed_urls):
             if frac >= 0 and frac < 0.1: wordlist.append(w)
 
 
-
-        print(wordscount)
-
-        out = open('blogdata.txt', 'w')
-        out.write('Blog')
-        for word in wordlist: out.write("\t%s" % word)
-        out.write("\n")
         for blog, wc in wordscount.items():
-            out.write(blog)
+            individual_blog_word_count = []
+            titles.append(blog)
             for word in wordlist:
-                if word in wc: out.write("\t%d" % wc[word])
-                else:  out.write('\t0')
-            out.write("\n")
+                if word in wc: individual_blog_word_count.append(float(wc[word]))
+                else: individual_blog_word_count.append(0.0)
+            data.append(individual_blog_word_count)
+
+
+        print(data)
+        for d in data:
+            print(len(d))
+
+        # out = open('blogdata.txt', 'w')
+        # out.write('Blog')
+        # for word in wordlist: out.write("\t%s" % word)
+        # out.write("\n")
+        # for blog, wc in wordscount.items():
+        #     out.write(blog)
+        #     for word in wordlist:
+        #         if word in wc: out.write("\t%d" % wc[word])
+        #         else:  out.write('\t0')
+        #     out.write("\n")
+        return titles, data
+
 
 
 # get_blogs("elixir", [])
